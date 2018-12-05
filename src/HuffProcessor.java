@@ -59,7 +59,8 @@ public class HuffProcessor {
 
 		while (true){
 			int val = in.readBits(BITS_PER_WORD);
-			if (val == -1) break;
+			if (val == -1) 
+				break;
 			String code = codings[val];
 			out.writeBits(code.length(), Integer.parseInt(code,2));
 		}
@@ -93,7 +94,8 @@ public class HuffProcessor {
 			out.writeBits(BITS_PER_WORD+1, root.myValue);
 		}
 		else {
-			out.writeBits(1, root.myValue);
+			//NOTE: might also be myValue
+			out.writeBits(1, 0);
 			writeHeader(root.myLeft, out);
 			writeHeader(root.myRight, out);
 		}
@@ -124,6 +126,7 @@ public class HuffProcessor {
 		while (pq.size() > 1) {
 			HuffNode left = pq.remove();
 			HuffNode right = pq.remove();
+			//NOTE: maybe change from 0
 			HuffNode t = new HuffNode(0, left.myWeight+right.myWeight, left, right);
 			// create new HuffNode t with weight from
 			// left.weight+right.weight and left, right subtrees
@@ -145,7 +148,6 @@ public class HuffProcessor {
 	public void decompress(BitInputStream in, BitOutputStream out){
 
 		int bits = in.readBits(BITS_PER_INT);
-		System.out.println("BITS :"+bits);
 		if (bits != HUFF_TREE)
 			throw new HuffException("illegal header starts with "+bits);
 
@@ -159,22 +161,21 @@ public class HuffProcessor {
 		//NOTE: might not read in just one bit
 
 		int bit = in.readBits(1);
-		System.out.println("bit: "+bit);
+		//System.out.println("bit: "+bit);
 
 		if (bit == -1)
 			throw new HuffException("Reading bits failed");
 		//NOTE: might not be right with just in
 		if (bit == 0) {
-			System.out.println("before left "+in);
+			//System.out.println("before left "+in);
 			HuffNode left = readTreeHeader(in);
-			System.out.println("after left "+in);
+			//System.out.println("after left "+in);
 			HuffNode right = readTreeHeader(in);
 			return new HuffNode (0,0,left, right);
 		}
 		else {
-
 			int value = in.readBits(BITS_PER_WORD+1);
-			System.out.println("Value: "+value);
+			//System.out.println("Value: "+value);
 			return new HuffNode(value, 0, null, null);
 		}
 
